@@ -1,8 +1,13 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
 from flask_cors import CORS, cross_origin
+from flask import Blueprint
 from models.todo import Todo
 from config import Config
+from auth.auth import auth_bp
+from auth.auth_middleware import token_required
+from routes.todo_routes import todo_bp
 from db import db
 import json
 import os
@@ -13,18 +18,24 @@ load_dotenv()
 app = Flask(__name__)
 app.config.from_object(Config)
 
-CORS(app)
+CORS(app, origins=["http://localhost:3000", "https://your-frontend.onrender.com"],  supports_credentials=True)
+app.register_blueprint(auth_bp, url_prefix='/auth')
+app.register_blueprint(todo_bp, url_prefix='/todos')
 db.init_app(app)
 from models.todo import Todo
+
 
 def create_tables():
     db.create_all()
 
+
 # Get all todos
 @app.route("/todos", methods=["GET"])
+@token_required
 @cross_origin()
 def get_todos():
-    todos = Todo.query.all()
+    user_id = request.user_id
+    todos = Todo.query.filter_by(user_id=user_id).all()
     return jsonify([todo.to_dict() for todo in todos])
 
 # Add a new todo
