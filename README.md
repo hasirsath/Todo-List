@@ -91,5 +91,3 @@ This is a full-stack To-Do List application built with **React** (frontend), **F
 * **Database**: PostgreSQL
 * **Hosting (Planned)**: Render or Vercel
 
-
-Let me know if you'd like a version of this as a downloadable `README.md` file or want to add deployment instructions or screenshots.
